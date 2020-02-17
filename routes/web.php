@@ -11,6 +11,22 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::group(['prefix'=>'admin', 'namespace'=>'Admin', 'middleware'=>['auth']], function(){
+  Route::get('/', 'DashboardController@dashboard')->name('admin.index'); //Роут к методу контроллера.
+/*пространство имен 'Admin', т.к. наш контроллер находится в папке Админ.
+Прописываем здесь, чтобы не писать во всех маршрутах внутри группы.
+middleware auth, чтобы не писать в контроллерах и каждой строчке, пишем 1 раз.*/
+  Route::resource('/category', 'CategoryController', ['as'=>'admin']);
+  Route::resource('/article', 'ArticleController', ['as'=>'admin']);
+  Route::group(['prefix' => 'user_managment', 'namespace' => 'UserManagment'], function() {
+    Route::resource('/user', 'UserController', ['as' => 'admin.user_managment']);
+  });
 });
+
+Route::get('/', function () {
+    return view('blog.home');
+});
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
